@@ -1,0 +1,222 @@
+openapi: 3.0.0
+info:
+  title: Candidate Service API
+  version: 1.0.0
+  description: API for managing job candidates
+servers:
+  - url: http://localhost:8080
+    description: Local Development Server
+tags:
+  - name: Candidates
+    description: Candidate Management API
+paths:
+  /candidates:
+    get:
+      summary: Get all candidates
+      tags:
+        - Candidates
+      operationId: getAllCandidates
+      responses:
+        '200':
+          description: A list of candidates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Candidate'
+    post:
+      summary: Create a new candidate
+      tags:
+        - Candidates
+      operationId: createCandidate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CandidateRequest'
+      responses:
+        '201':
+          description: Candidate created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Candidate'
+        '400':
+          description: Invalid request payload
+  /candidates/{id}:
+    get:
+      summary: Get a candidate by ID
+      tags:
+        - Candidates
+      operationId: getCandidateById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the candidate to retrieve
+      responses:
+        '200':
+          description: Candidate found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Candidate'
+        '404':
+          description: Candidate not found
+    put:
+      summary: Update an existing candidate
+      tags:
+        - Candidates
+      operationId: updateCandidate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the candidate to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CandidateRequest'
+      responses:
+        '200':
+          description: Candidate updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Candidate'
+        '400':
+          description: Invalid request payload
+        '404':
+          description: Candidate not found
+    delete:
+      summary: Delete a candidate by ID
+      tags:
+        - Candidates
+      operationId: deleteCandidate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the candidate to delete
+      responses:
+        '204':
+          description: Candidate deleted successfully
+        '404':
+          description: Candidate not found
+components:
+  schemas:
+    Candidate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unique identifier for the candidate
+        name:
+          type: string
+          description: Full name of the candidate
+          example: John Doe
+        email:
+          type: string
+          format: email
+          description: Email address of the candidate
+          example: john.doe@example.com
+        skills:
+          type: array
+          items:
+            type: string
+          description: List of skills the candidate possesses
+          example: ["Java", "Spring Boot", "Microservices"]
+        _links:
+          type: object
+          description: HATEOAS links for the resource
+          additionalProperties:
+            $ref: '#/components/schemas/Link'
+      required:
+        - name
+        - email
+    CandidateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Full name of the candidate
+          example: John Doe
+        email:
+          type: string
+          format: email
+          description: Email address of the candidate
+          example: john.doe@example.com
+        skills:
+          type: array
+          items:
+            type: string
+          description: List of skills the candidate possesses
+          example: ["Java", "Spring Boot", "Microservices"]
+      required:
+        - name
+        - email
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+          format: uri
+          description: The URI of the link
+        templated:
+          type: boolean
+          description: Whether the link is templated
+        type:
+          type: string
+          description: The media type of the link
+        deprecation:
+          type: string
+          description: A URI that provides a hint about when the link is expected to become inactive
+        profile:
+          type: string
+          description: A URI that hints about the profile of the target resource
+        title:
+          type: string
+          description: A human-readable title for the link
+        name:
+          type: string
+          description: A secondary key for the link
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: The time the error occurred
+        status:
+          type: integer
+          format: int32
+          description: The HTTP status code
+        error:
+          type: string
+          description: The HTTP error message
+        message:
+          type: string
+          description: A detailed error message
+        path:
+          type: string
+          description: The request URI
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
