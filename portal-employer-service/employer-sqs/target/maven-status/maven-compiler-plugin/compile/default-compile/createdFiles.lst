@@ -1,0 +1,2 @@
+com/portal/employer/sqs/listener/SqsEmployerMessageReceiver.class
+com/portal/employer/sqs/sender/SqsEmployerMessageSender.class

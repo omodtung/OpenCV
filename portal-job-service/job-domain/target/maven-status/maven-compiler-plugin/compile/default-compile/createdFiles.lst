@@ -1,0 +1,6 @@
+com/portal/job/domain/Category.class
+com/portal/job/domain/Job.class
+com/portal/job/domain/JobApplication.class
+com/portal/job/domain/CategoryRepository.class
+com/portal/job/domain/JobRepository.class
+com/portal/job/domain/JobApplicationRepository.class

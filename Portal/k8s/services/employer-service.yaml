@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: employer-service
+  namespace: portal
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: employer-service
+  template:
+    metadata:
+      labels:
+        app: employer-service
+    spec:
+      containers:
+        - name: employer-service
+          image: portal/employer-service:latest
+          ports:
+            - containerPort: 8082
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: jms
+            - name: DB_HOST
+              value: postgres
+            - name: DB_NAME
+              value: employer_service_db
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: SERVER_PORT
+              value: "8082"
+            - name: SPRING_ACTIVEMQ_BROKER_URL
+              value: tcp://activemq:61616
+            - name: IDENTITY_SERVICE_URL
+              value: http://identity-service:8080
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8082
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: employer-service
+  namespace: portal
+spec:
+  selector:
+    app: employer-service
+  ports:
+    - port: 8082

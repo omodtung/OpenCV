@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: activemq
+  namespace: portal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: activemq
+  template:
+    metadata:
+      labels:
+        app: activemq
+    spec:
+      containers:
+        - name: activemq
+          image: apache/activemq-classic:5.18.4
+          ports:
+            - containerPort: 61616
+            - containerPort: 8161
+          env:
+            - name: ACTIVEMQ_USERNAME
+              value: admin
+            - name: ACTIVEMQ_PASSWORD
+              value: admin
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8161
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: activemq
+  namespace: portal
+spec:
+  selector:
+    app: activemq
+  ports:
+    - name: jms
+      port: 61616
+    - name: web
+      port: 8161

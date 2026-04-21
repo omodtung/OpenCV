@@ -1,0 +1,4 @@
+com/portal/employer/app/messaging/DefaultEmployerMessageSender.class
+com/portal/employer/app/service/EmployerProfileService.class
+com/portal/employer/app/messaging/EmployerMessageSenderConfigurer.class
+com/portal/employer/app/messaging/EmployerMessageSender.class

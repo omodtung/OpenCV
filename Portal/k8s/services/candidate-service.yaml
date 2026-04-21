@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: candidate-service
+  namespace: portal
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: candidate-service
+  template:
+    metadata:
+      labels:
+        app: candidate-service
+    spec:
+      containers:
+        - name: candidate-service
+          image: portal/candidate-service:latest
+          ports:
+            - containerPort: 8081
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: jms
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://postgres:5432/candidate_service_db
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: SERVER_PORT
+              value: "8081"
+            - name: SPRING_ACTIVEMQ_BROKER_URL
+              value: tcp://activemq:61616
+            - name: IDENTITY_SERVICE_URL
+              value: http://identity-service:8080
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: candidate-service
+  namespace: portal
+spec:
+  selector:
+    app: candidate-service
+  ports:
+    - port: 8081

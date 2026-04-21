@@ -1,0 +1,4 @@
+email,firstName,lastName,phone,primarySkill,yearsOfExperience,currentCompany
+jane.doe@example.com,Jane,Doe,0123456789,Java,5,Acme Corp
+john.smith@example.com,John,Smith,0987654321,Python,3,Widget Inc
+

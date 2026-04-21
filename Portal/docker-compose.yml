@@ -1,0 +1,117 @@
+version: "3.9"
+
+services:
+
+  # ===== PostgreSQL - 4 databases (Database per Service) =====
+  postgres:
+    image: postgres:16-alpine
+    container_name: portal-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST_AUTH_METHOD: md5
+      POSTGRES_INITDB_ARGS: "--auth-host=md5"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ===== ActiveMQ - Message Broker (JMS profile, local dev) =====
+  activemq:
+    image: apache/activemq-classic:5.18.4
+    container_name: portal-activemq
+    ports:
+      - "61616:61616"   # JMS
+      - "8161:8161"     # Web console (admin/admin)
+    environment:
+      ACTIVEMQ_USERNAME: admin
+      ACTIVEMQ_PASSWORD: admin
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:8161/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ===== Identity Service (port 8080) =====
+  identity-service:
+    build: ../portal-identity-service
+    container_name: portal-identity
+    depends_on:
+      postgres:
+        condition: service_healthy
+      activemq:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: jms
+      DATABASE_URL: jdbc:postgresql://postgres:5432/identity_service_db
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: postgres
+    ports:
+      - "8080:8080"
+
+  # ===== Candidate Service (port 8081) =====
+  candidate-service:
+    build: ../portal-candidate-service
+    container_name: portal-candidate
+    depends_on:
+      postgres:
+        condition: service_healthy
+      activemq:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: jms
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/candidate_service_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SERVER_PORT: 8081
+      SPRING_ACTIVEMQ_BROKER_URL: tcp://activemq:61616
+    ports:
+      - "8081:8081"
+
+  # ===== Employer Service (port 8082) =====
+  employer-service:
+    build: ../portal-employer-service
+    container_name: portal-employer
+    depends_on:
+      postgres:
+        condition: service_healthy
+      activemq:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: jms
+      DB_HOST: postgres
+      DB_NAME: employer_service_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      SERVER_PORT: 8082
+      SPRING_ACTIVEMQ_BROKER_URL: tcp://activemq:61616
+    ports:
+      - "8082:8082"
+
+  # ===== Job Service (port 8083) =====
+  job-service:
+    build: ../portal-job-service
+    container_name: portal-job
+    depends_on:
+      postgres:
+        condition: service_healthy
+      activemq:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: jms
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/job_service_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      SERVER_PORT: 8083
+      SPRING_ACTIVEMQ_BROKER_URL: tcp://activemq:61616
+    ports:
+      - "8083:8083"
+
+volumes:
+  postgres_data:

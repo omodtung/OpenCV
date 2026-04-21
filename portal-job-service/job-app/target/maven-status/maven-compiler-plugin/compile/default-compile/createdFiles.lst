@@ -1,0 +1,5 @@
+com/portal/job/app/service/CompanySyncService.class
+com/portal/job/app/messaging/DefaultJobMessageSender.class
+com/portal/job/app/messaging/JobMessageSenderConfigurer.class
+com/portal/job/app/service/JobApplicationService.class
+com/portal/job/app/messaging/JobMessageSender.class

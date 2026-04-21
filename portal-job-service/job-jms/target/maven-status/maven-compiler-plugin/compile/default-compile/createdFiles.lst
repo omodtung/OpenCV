@@ -1,0 +1,2 @@
+com/portal/job/jms/sender/JmsJobMessageSender.class
+com/portal/job/jms/listener/JmsJobMessageReceiver.class

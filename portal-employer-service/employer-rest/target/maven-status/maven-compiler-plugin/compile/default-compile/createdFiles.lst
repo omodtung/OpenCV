@@ -1,0 +1,3 @@
+com/portal/employer/rest/CompanyController.class
+com/portal/employer/rest/config/JwtAuthFilter.class
+com/portal/employer/rest/config/SecurityConfig.class

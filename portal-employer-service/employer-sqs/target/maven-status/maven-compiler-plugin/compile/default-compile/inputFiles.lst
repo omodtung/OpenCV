@@ -1,0 +1,2 @@
+/home/dothetung/Projects/OPEN-CV/portal-employer-service/employer-sqs/src/main/java/com/portal/employer/sqs/sender/SqsEmployerMessageSender.java
+/home/dothetung/Projects/OPEN-CV/portal-employer-service/employer-sqs/src/main/java/com/portal/employer/sqs/listener/SqsEmployerMessageReceiver.java

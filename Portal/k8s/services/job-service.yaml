@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: job-service
+  namespace: portal
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: job-service
+  template:
+    metadata:
+      labels:
+        app: job-service
+    spec:
+      containers:
+        - name: job-service
+          image: portal/job-service:latest
+          ports:
+            - containerPort: 8083
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: jms
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://postgres:5432/job_service_db
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: SERVER_PORT
+              value: "8083"
+            - name: SPRING_ACTIVEMQ_BROKER_URL
+              value: tcp://activemq:61616
+            - name: IDENTITY_SERVICE_URL
+              value: http://identity-service:8080
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8083
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: job-service
+  namespace: portal
+spec:
+  selector:
+    app: job-service
+  ports:
+    - port: 8083

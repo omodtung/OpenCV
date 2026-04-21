@@ -1,0 +1,4 @@
+com/portal/employer/domain/CompanyRepository.class
+com/portal/employer/domain/Company.class
+com/portal/employer/domain/Employer.class
+com/portal/employer/domain/EmployerRepository.class
