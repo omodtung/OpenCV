@@ -1,0 +1,9 @@
+Removing portal-postgres
+Recreating 7c5e1b02b071_portal-postgres ... 
+portal-activemq is up-to-date
+Recreating 7c5e1b02b071_portal-postgres ... error
+
+ERROR: for 7c5e1b02b071_portal-postgres  Cannot start service postgres: Ports are not available: exposing port TCP 0.0.0.0:5432 -> 0.0.0.0:0: listen tcp 0.0.0.0:5432: bind: address already in use
+
+ERROR: for postgres  Cannot start service postgres: Ports are not available: exposing port TCP 0.0.0.0:5432 -> 0.0.0.0:0: listen tcp 0.0.0.0:5432: bind: address already in use
+Encountered errors while bringing up the project.
