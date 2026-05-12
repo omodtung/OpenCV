@@ -36,8 +36,6 @@ public class JobSpecification {
                 predicates.add(root.get("employmentType").in(request.getEmploymentTypes())) ;
 
             }
-
-
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
 
 
