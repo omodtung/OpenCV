@@ -13,5 +13,9 @@
             <groupId>com.portal.job</groupId>
             <artifactId>job-domain</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.portal.job</groupId>
+            <artifactId>job-rest</artifactId>
+        </dependency>
     </dependencies>
 </project>
