@@ -38,6 +38,7 @@ public class JobSpecification {
             }
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
 
+
         };
     }
 }
