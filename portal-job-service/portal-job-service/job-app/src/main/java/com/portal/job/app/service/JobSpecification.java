@@ -1,0 +1,56 @@
+package com.portal.job.app.service;
+
+import com.portal.job.domain.Job;
+import com.portal.job.domain.Category;
+import com.portal.job.rest.dto.JobSearchRequest;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.jpa.domain.Specification;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+public class JobSpecification {
+
+    public static Specification<Job> searchJobs(JobSearchRequest request) {
+        return (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (request.getKeyword() != null && !request.getKeyword().isEmpty()) {
+                String likePattern = "%" + request.getKeyword().toLowerCase() + "%";
+                Predicate titlePredicate = criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), likePattern);
+                Predicate descriptionPredicate = criteriaBuilder.like(criteriaBuilder.lower(root.get("description")), likePattern);
+                Predicate companyNamePredicate = criteriaBuilder.like(criteriaBuilder.lower(root.get("companyName")), likePattern);
+                predicates.add(criteriaBuilder.or(titlePredicate, descriptionPredicate, companyNamePredicate));
+            }
+
+            if (request.getLocation() != null && !request.getLocation().isEmpty()) {
+                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("location")), "%" + request.getLocation().toLowerCase() + "%"));
+            }
+
+            if (request.getCategories() != null && !request.getCategories().isEmpty()) {
+                Join<Job, Category> jobCategoryJoin = root.join("categories");
+                predicates.add(jobCategoryJoin.get("id").in(request.getCategories()));
+            }
+
+            if (request.getEmploymentTypes() != null && !request.getEmploymentTypes().isEmpty()) {
+                predicates.add(root.get("employmentType").in(request.getEmploymentTypes()));
+            }
+
+            if (request.getSalaryMin() != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("salaryMax"), request.getSalaryMin()));
+            }
+
+            if (request.getSalaryMax() != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("salaryMin"), request.getSalaryMax()));
+            }
+
+            if (request.getDatePostedAfter() != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("postedAt"), request.getDatePostedAfter().atStartOfDay()));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+}
