@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface JobRepository extends JpaRepository<Job, UUID> , JpaSpecificationExecutor{
+public interface JobRepository extends JpaRepository<Job, UUID> , JpaSpecificationExecutor<Job>{
   List<Job> findByEmployerId(UUID employerId);
 
   List<Job> findByStatus(String status);

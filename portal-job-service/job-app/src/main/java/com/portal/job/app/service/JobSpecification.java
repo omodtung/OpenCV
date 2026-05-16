@@ -36,6 +36,18 @@ public class JobSpecification {
                 predicates.add(root.get("employmentType").in(request.getEmploymentTypes())) ;
 
             }
+            if(request.getSalaryMax()!= null)
+            {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("salaryMin"),request.getSalaryMax()));
+            }
+            if(request.getSalaryMin()!=null)
+            {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("salaryMax"),request.getSalaryMin()));
+            }
+
+            if(request.getDatePostedAfter() != null){
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("postedAt"), request.getDatePostedAfter().atStartOfDay()));
+            }
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
 
 
